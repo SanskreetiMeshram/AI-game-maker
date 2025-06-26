@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GameGen - No-Code Game Maker</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>🎮 Welcome to GameGen!</h1>
+    <p>Create your own games with AI – No coding needed!</p>
+  </header>
+
+  <section class="template-section">
+    <h2>Choose a Game Template</h2>
+    <div class="template-grid">
+      <div class="template-card" onclick="startCreation('flappy')">
+        <img src="assets/flappy.png" alt="Flappy Bird"/>
+        <h3>Flappy Bird</h3>
+      </div>
+      <div class="template-card" onclick="startCreation('runner')">
+        <img src="assets/runner.png" alt="Speed Runner"/>
+        <h3>Speed Runner</h3>
+      </div>
+      <div class="template-card" onclick="startCreation('mole')">
+        <img src="assets/mole.png" alt="Whack-A-Mole"/>
+        <h3>Whack-A-Mole</h3>
+      </div>
+      <div class="template-card" onclick="startCreation('match3')">
+        <img src="assets/match3.png" alt="Match-3"/>
+        <h3>Match-3</h3>
+      </div>
+      <div class="template-card" onclick="startCreation('crossy')">
+        <img src="assets/crossy.png" alt="Crossy Road"/>
+        <h3>Crossy Road</h3>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>🚀 Powered by GameGen | No-code AI Game Builder</p>
+  </footer>
+
+  <script>
+    function startCreation(template) {
+      localStorage.setItem("selectedTemplate", template);
+      window.location.href = "create.html";
+    }
+  </script>
+</body>
+</html>

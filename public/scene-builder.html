@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Scene Builder – GameGen</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; background: #222; color: #fff; }
+    #canvas { background: #111; border: 2px solid #00ffcc; }
+    .toolbar { margin: 10px; }
+    button { margin: 5px; padding: 10px; }
+  </style>
+</head>
+<body>
+  <h1>🎮 GameGen Scene Builder</h1>
+  <div class="toolbar">
+    <label>Select Tile: </label>
+    <select id="tileSelect">
+      <option value="0">Empty</option>
+      <option value="1">Block</option>
+      <option value="2">Coin</option>
+      <option value="3">Enemy</option>
+    </select>
+    <button onclick="downloadJSON()">💾 Save Scene</button>
+  </div>
+  <canvas id="canvas" width="640" height="640"></canvas>
+
+  <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    const gridSize = 10;
+    const tileSize = 64;
+
+    const scene = Array.from({ length: gridSize }, () => Array(gridSize).fill(0));
+
+    const tileColors = {
+      0: "#111",     // Empty
+      1: "#00aaff",  // Block
+      2: "#ffff00",  // Coin
+      3: "#ff4444"   // Enemy
+    };
+
+    function drawGrid() {
+      for (let y = 0; y < gridSize; y++) {
+        for (let x = 0; x < gridSize; x++) {
+          ctx.fillStyle = tileColors[scene[y][x]];
+          ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+          ctx.strokeStyle = "#444";
+          ctx.strokeRect(x * tileSize, y * tileSize, tileSize, tileSize);
+        }
+      }
+    }
+
+    canvas.addEventListener("click", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = Math.floor((e.clientX - rect.left) / tileSize);
+      const y = Math.floor((e.clientY - rect.top) / tileSize);
+      const selected = parseInt(document.getElementById("tileSelect").value);
+      scene[y][x] = selected;
+      drawGrid();
+    });
+
+    function downloadJSON() {
+      const blob = new Blob([JSON.stringify(scene)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "scene.json";
+      a.click();
+    }
+
+    drawGrid();
+  </script>
+</body>
+</html>

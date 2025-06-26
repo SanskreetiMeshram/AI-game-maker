@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Game – GameGen</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .output-img.selected { border: 4px solid #00ff99; }
+    .step { margin: 2rem auto; max-width: 800px; background: #fff; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    .step h2 { margin-bottom: 1rem; }
+    .step textarea, .step input, .step select { width: 100%; padding: 0.8rem; margin: 0.5rem 0; border-radius: 8px; border: 1px solid #ccc; }
+    .btn { background-color: #ff6584; color: white; border: none; padding: 0.8rem 2rem; border-radius: 8px; cursor: pointer; margin-top: 1rem; }
+    .btn:hover { background-color: #e44d6c; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🛠️ Create Your Game</h1>
+    <p>Template Selected: <span id="templateName">Loading...</span></p>
+  </header>
+
+  <section class="step" id="step1">
+    <h2>Step 1: Reskin with AI 🎨</h2>
+    <label>Describe your game theme, art style, character type, and background:</label>
+    <textarea id="aiPrompt" rows="4" placeholder="E.g., A cyberpunk world with neon city and robot character in pixel art style..."></textarea>
+    <button class="btn" onclick="generateAssets()">Generate Assets with AI</button>
+    <div id="aiImages" style="display:flex; flex-wrap:wrap;"></div>
+  </section>
+
+  <section class="step" id="step2">
+    <h2>Step 2: Game Parameters 🕹️</h2>
+    <label>Set difficulty:</label>
+    <select id="difficulty">
+      <option value="easy">Easy</option>
+      <option value="medium" selected>Medium</option>
+      <option value="hard">Hard</option>
+    </select>
+
+    <label>Game speed:</label>
+    <input type="range" min="1" max="10" value="5" id="speedSlider"/>
+    <span id="speedVal">5</span>
+
+    <label>Gravity:</label>
+    <input type="range" min="1" max="20" value="10" id="gravitySlider"/>
+    <span id="gravityVal">10</span>
+  </section>
+
+  <section class="step" id="step3">
+    <h2>Step 3: Background Music 🎵</h2>
+    <label>Music style or mood prompt (e.g., cheerful chiptune, dark synthwave):</label>
+    <input type="text" id="musicPrompt" placeholder="e.g., cheerful retro chiptune" />
+    <button class="btn" onclick="generateMusic()">Generate AI Music</button>
+    <audio controls id="musicPreview" style="display:none; margin-top: 1rem;"></audio>
+  </section>
+
+  <section class="step" id="step4">
+    <h2>Step 4: Export Your Game 📦</h2>
+    <p>Click below to generate a playable HTML5 game with your settings:</p>
+    <button class="btn" onclick="exportGame()">Export Game</button>
+  </section>
+
+
+
+  <script>
+    const gameData = {
+  template,
+  settings: {
+    difficulty: document.getElementById("difficulty").value,
+    speed: document.getElementById("speedSlider").value,
+    gravity: document.getElementById("gravitySlider").value
+  },
+  themePrompt: document.getElementById("aiPrompt").value,
+  musicPrompt: document.getElementById("musicPrompt").value,
+  musicURL: document.getElementById("musicPreview").src,
+  date: new Date().toISOString()
+};
+
+    const API_BASE = "http://localhost:5000"; // Change if hosted elsewhere
+  
+    const template = localStorage.getItem("selectedTemplate") || "unknown";
+    document.getElementById("templateName").textContent = template;
+  
+    document.getElementById("speedSlider").addEventListener("input", (e) => {
+      document.getElementById("speedVal").textContent = e.target.value;
+    });
+    document.getElementById("gravitySlider").addEventListener("input", (e) => {
+      document.getElementById("gravityVal").textContent = e.target.value;
+    });
+  
+    // Step 1: Generate Assets with AI
+    data.images.forEach((img, idx) => {
+  const imageEl = document.createElement("img");
+  imageEl.src = img;
+  imageEl.className = "output-img";
+  imageEl.onclick = () => {
+    document.querySelectorAll('.output-img').forEach(i => i.classList.remove('selected'));
+    imageEl.classList.add('selected');
+    // Store selected image URL in localStorage
+    localStorage.setItem("selectedImageURL", img);
+  };
+  container.appendChild(imageEl);
+});
+
+    async function generateAssets() {
+      const prompt = document.getElementById("aiPrompt").value;
+      const container = document.getElementById("aiImages");
+      container.innerHTML = "<p>🎨 Generating assets using AI...</p>";
+  
+      try {
+        const res = await fetch(`${API_BASE}/api/generate-image`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt })
+        });
+        const data = await res.json();
+  
+        container.innerHTML = "";
+        data.images.forEach(img => {
+          const imageEl = document.createElement("img");
+          imageEl.src = img;
+          imageEl.className = "output-img";
+          container.appendChild(imageEl);
+        });
+      } catch (err) {
+        container.innerHTML = "<p>❌ Error generating assets.</p>";
+        console.error(err);
+      }
+    }
+  
+    // Step 2: Game Parameters - nothing needed yet (used in export)
+  
+    // Step 3: Generate Music with AI
+    async function generateMusic() {
+      const prompt = document.getElementById("musicPrompt").value;
+      const audio = document.getElementById("musicPreview");
+      audio.style.display = "none";
+  
+      try {
+        const res = await fetch(`${API_BASE}/api/generate-music`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt })
+        });
+        const data = await res.json();
+  
+        audio.src = data.music;
+        audio.style.display = "block";
+      } catch (err) {
+        alert("❌ Failed to generate music.");
+        console.error(err);
+      }
+    }
+  
+    // Step 4: Export Game
+    async function exportGame() {
+      const gameData = {
+        template,
+        settings: {
+          difficulty: document.getElementById("difficulty").value,
+          speed: document.getElementById("speedSlider").value,
+          gravity: document.getElementById("gravitySlider").value
+        },
+        themePrompt: document.getElementById("aiPrompt").value,
+        musicPrompt: document.getElementById("musicPrompt").value,
+        date: new Date().toISOString()
+      };
+  
+      try {
+        const res = await fetch(`${API_BASE}/api/export-game`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ gameData, templateName: template })
+        });
+  
+        if (res.ok) {
+          const blob = await res.blob();
+          const link = document.createElement("a");
+          link.href = window.URL.createObjectURL(blob);
+          link.download = "custom-game.zip";
+          link.click();
+        } else {
+          alert("❌ Export failed.");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("❌ Error exporting game.");
+      }
+    }
+  </script>
+  
+</body>
+</html>
